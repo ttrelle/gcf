@@ -1,12 +1,22 @@
+const Storage = require('@google-cloud/storage');
+const languageApi = require('@google-cloud/language');
+
 const OUT_BUCKET_NAME = "nlp-test-out";
 
 // Storage API
-const storage = require('@google-cloud/storage')();
+const storage = new Storage();
 const outputBucket = storage.bucket(OUT_BUCKET_NAME);
 
 // Language API
-const language = require('@google-cloud/language');
-const client = new language.LanguageServiceClient();
+const client = new languageApi.LanguageServiceClient();
+
+function gcsUri(bucket, file) {
+  return `gs://${bucket}/${file}`;
+}
+
+function outputFilename(inputFilename) {
+  return inputFilename.replace(".txt", "-results.json");
+}
 
 /**
  * Triggered from a message on a Cloud Storage bucket.
@@ -14,9 +24,9 @@ const client = new language.LanguageServiceClient();
  * @param {!Object} event The Cloud Functions event.
  * @param {!Function} The callback function.
  */
-exports.analyse_entity_sentiment = (event, callback) => {
+exports.analyse_entity_sentiment = function(event, callback) {
   const data = event.data;
-  const inputFileUri = inputFileGcsUri(data);
+  const inputFileUri = gcsUri(data.bucket, data.name);
   const outFilename = outputFilename(data.name);
 
   console.log('Processing text from: ' + inputFileUri);
@@ -31,21 +41,7 @@ exports.analyse_entity_sentiment = (event, callback) => {
     .then(results => {
       const outputFile = outputBucket.file(outFilename);
       outputFile.save(JSON.stringify(results));
-      console.info('Text analysis results writtten to: gs://' + OUT_BUCKET_NAME + '/' + outFilename);
-    })
-    .then(() =>{
-      callback();
-    }).
-    catch(err => {
-      console.error('ERROR: ' + err);
-      callback(err);
+      console.info('Text analysis results writtten to: ' + gcsUri(OUT_BUCKET_NAME,outFilename));
+	  callback();
     });
-};
-
-function inputFileGcsUri(data) {
-  return "gs://" + data.bucket + "/" + data.name;
-}
-
-function outputFilename(inputFilename) {
-  return inputFilename.replace(".txt", "-results.json");
 }
