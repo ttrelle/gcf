@@ -42,6 +42,6 @@ exports.analyse_entity_sentiment = function(event, callback) {
       const outputFile = outputBucket.file(outFilename);
       outputFile.save(JSON.stringify(results));
       console.info('Text analysis results writtten to: ' + gcsUri(OUT_BUCKET_NAME,outFilename));
-	  callback();
+      callback();
     });
 }
