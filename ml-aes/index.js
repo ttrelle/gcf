@@ -1,3 +1,6 @@
+// index.js
+'use strict';
+
 const Storage = require('@google-cloud/storage');
 const languageApi = require('@google-cloud/language');
 
@@ -29,6 +32,8 @@ exports.analyse_entity_sentiment = function(event, callback) {
   const inputFileUri = gcsUri(data.bucket, data.name);
   const outFilename = outputFilename(data.name);
 
+  console.log("Client: " + JSON.stringify(client));
+  console.log("Client.analyzeEntitySentiment: " + client.analyzeEntitySentiment);
   console.log('Processing text from: ' + inputFileUri);
   const aesRequest = {
     gcsContentUri: inputFileUri,
