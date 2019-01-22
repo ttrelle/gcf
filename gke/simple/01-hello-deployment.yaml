@@ -2,15 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-app
+  labels:
+    app: hellp
 spec:
   selector:
     matchLabels:
-      run: hello-app
+      app: hello
   replicas: 3
   template:
     metadata:
       labels:
-        run: hello-app
+        app: hello
     spec:
       containers:
       - name: hello
