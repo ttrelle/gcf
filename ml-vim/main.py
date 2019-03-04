@@ -15,19 +15,16 @@ with open(meta_file) as json_data:
     metadata = json.load(json_data)
 
 # process Image
-img = processFaces(input_file, metadata, rawImage)
+img = None
+if "responses" in metadata and metadata["responses"][0] is not None:
 
-# crop
-#p1 = outerBB["vertices"][0]
-#p2 = outerBB["vertices"][2]
-#img = img[ p1["y"]:p2["y"], p1["x"]:p2["x"]]
+    # render faces    
+    if "faceAnnotations" in metadata["responses"][0]:
+        img = processFaces(input_file, metadata["responses"][0]["faceAnnotations"], rawImage)
 
-# scale
-#r = 800.0 / img.shape[1]
-#dim = (800, int(img.shape[0] * r))
-#img = cv.resize(img, dim, interpolation = cv.INTER_AREA)
+    # TODO: add more renderers here
 
-# write output image
-img.save(output_file, optimize = True)
-img.show()
-
+    # write output image
+    if img:
+        img.save(output_file, optimize = True)
+        img.show()

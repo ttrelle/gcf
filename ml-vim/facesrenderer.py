@@ -25,7 +25,7 @@ FEATURES = [
     (False, ["LEFT_EAR_TRAGION", "CHIN_LEFT_GONION", "CHIN_GNATHION", "CHIN_RIGHT_GONION", "RIGHT_EAR_TRAGION"])
 ]
 
-def processFaces(name, data, raw = None):
+def processFaces(name, faceAnnotations, raw = None):
     # Image
     if raw is None:
         img = Image.open(name)
@@ -35,9 +35,8 @@ def processFaces(name, data, raw = None):
     img = img.convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    if "responses" in data and data["responses"][0] is not None and "faceAnnotations" in data["responses"][0]:
-        for face in data["responses"][0]["faceAnnotations"]:
-            processFace(face, draw)
+    for face in faceAnnotations:
+        processFace(face, draw)
 
     return img
 
