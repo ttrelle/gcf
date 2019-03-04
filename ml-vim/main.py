@@ -1,17 +1,20 @@
 import io
 import sys
 import json
-from addfacedata import processImage 
+from facesrenderer import processImage 
 
-basename = sys.argv[1]
-with open(basename + '.json') as json_data:
-    metadata = json.load(json_data)
+input_file = sys.argv[1]
+meta_file = sys.argv[2]
+output_file = sys.argv[3]
 
-with open(basename + '.png', 'rb') as fp:
+with open(input_file, 'rb') as fp:
     rawImage = io.BytesIO(fp.read())
 
+with open(meta_file) as json_data:
+    metadata = json.load(json_data)
+
 #Read Image
-img = processImage(basename + ".png", metadata, rawImage)
+img = processImage(input_file, metadata, rawImage)
 
 # crop
 #p1 = outerBB["vertices"][0]
@@ -24,4 +27,6 @@ img = processImage(basename + ".png", metadata, rawImage)
 #img = cv.resize(img, dim, interpolation = cv.INTER_AREA)
 
 #Display Image
+img.save(output_file, optimize = True)
 img.show()
+

@@ -1,2 +1,3 @@
 ml-vim/.vscode
 ml-vim/__pycache__
+*.pyc
