@@ -1,5 +1,4 @@
 from PIL import Image, ImageDraw
-from basicrenderer import drawRect
 
 BBOX_COLOR = (255, 255, 255)
 MARKER_COLOR = (255, 0, 0)
@@ -25,7 +24,7 @@ FEATURES = [
     (False, ["LEFT_EAR_TRAGION", "CHIN_LEFT_GONION", "CHIN_GNATHION", "CHIN_RIGHT_GONION", "RIGHT_EAR_TRAGION"])
 ]
 
-def processFaces(name, data, raw = None):
+def processImage(name, data, raw = None):
     # Image
     if raw is None:
         img = Image.open(name)
@@ -35,24 +34,26 @@ def processFaces(name, data, raw = None):
     img = img.convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    if "responses" in data and data["responses"][0] is not None and "faceAnnotations" in data["responses"][0]:
-        for face in data["responses"][0]["faceAnnotations"]:
-            processFace(face, draw)
+    outerBB = data["responses"][0]["faceAnnotations"][0]["boundingPoly"]
+    drawRect(draw, outerBB)
 
-    return img
+    innerBB = data["responses"][0]["faceAnnotations"][0]["fdBoundingPoly"]
+    drawRect(draw, innerBB)
 
-def processFace(data, draw):
-    # bounding boxes
-    drawRect(draw, data["boundingPoly"])
-    drawRect(draw, data["fdBoundingPoly"])
-
-    landmarks = data["landmarks"]
+    landmarks = data["responses"][0]["faceAnnotations"][0]["landmarks"]
     for l in landmarks:
         drawLandmark(draw, l, False)
 
     # FEATURES
     for f in FEATURES:
-        drawFeature(draw, f, landmarks) 
+        drawFeature(draw, f, landmarks)
+
+    return img
+
+def drawRect(draw, rect):
+    p1 = rect["vertices"][0]
+    p2 = rect["vertices"][2]
+    draw.rectangle( xy = [(p1["x"],p1["y"]), (p2["x"],p2["y"])], outline = BBOX_COLOR, width= LINE_WIDTH)
 
 def drawLandmark(draw, lm, text = True):
     # print(lm)
