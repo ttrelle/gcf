@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-from basicrenderer import drawRect
+from basicrenderer import drawRect, processAnnotations
 
 BBOX_COLOR = (255, 255, 255)
 MARKER_COLOR = (255, 0, 0)
@@ -26,32 +26,20 @@ FEATURES = [
 ]
 
 def processFaces(name, faceAnnotations, raw = None):
-    # Image
-    if raw is None:
-        img = Image.open(name)
-    else:
-        img = Image.open(raw)
-        
-    img = img.convert("RGB")
-    draw = ImageDraw.Draw(img)
+    return processAnnotations(name, faceAnnotations, processFace, raw)
 
-    for face in faceAnnotations:
-        processFace(face, draw)
-
-    return img
-
-def processFace(data, draw):
+def processFace(data, canvas, size):
     # bounding boxes
-    drawRect(draw, data["boundingPoly"])
-    drawRect(draw, data["fdBoundingPoly"])
+    drawRect(canvas, data["boundingPoly"]["vertices"])
+    drawRect(canvas, data["fdBoundingPoly"]["vertices"])
 
     landmarks = data["landmarks"]
     for l in landmarks:
-        drawLandmark(draw, l, False)
+        drawLandmark(canvas, l, False)
 
     # FEATURES
     for f in FEATURES:
-        drawFeature(draw, f, landmarks) 
+        drawFeature(canvas, f, landmarks) 
 
 def drawLandmark(draw, lm, text = True):
     # print(lm)
@@ -67,7 +55,7 @@ def getLandmarkPoint(landmarks, id):
             pos = lm["position"]
             return (pos["x"], pos["y"])
 
-def drawFeature(draw, feature, landmarks):
+def drawFeature(canvas, feature, landmarks):
     closePoly, featureList = feature
     poly = []
     for item in featureList:
@@ -76,4 +64,4 @@ def drawFeature(draw, feature, landmarks):
     if closePoly:
         poly.append(getLandmarkPoint(landmarks, featureList[0]))
         
-    draw.line(xy=poly, fill=MARKER_COLOR, width=LINE_WIDTH)
+    canvas.line(xy=poly, fill=MARKER_COLOR, width=LINE_WIDTH)
