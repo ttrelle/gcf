@@ -1,0 +1,4 @@
+# Function dependencies
+Pillow >= 5.2.0
+google-cloud-storage
+google-cloud-vision

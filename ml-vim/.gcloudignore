@@ -14,7 +14,9 @@
 .gitignore
 .DS_Store
 
-*.pyc
+.vscode
 __pycache__
-vic.*
 data
+*.pyc
+vic.*
+deploy.sh
