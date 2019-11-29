@@ -1,3 +1,4 @@
+import io
 from google.cloud import vision
 from PIL import Image
 
@@ -10,7 +11,7 @@ vision_client = vision.ImageAnnotatorClient()
 def process_image(buffer):
     # vision API call
     response = vision_client.annotate_image({
-        'image': {'content': buffer.getvalue() },
+        'image': {'content': buffer },
         'features': [
             {'type': vision.enums.Feature.Type.FACE_DETECTION},
             {'type': vision.enums.Feature.Type.OBJECT_LOCALIZATION}
@@ -19,7 +20,7 @@ def process_image(buffer):
 
     img = None
     if response is not None:
-        img = Image.open(buffer)
+        img = Image.open(io.BytesIO(buffer))
         img = img.convert("RGB")
 
         if response.face_annotations is not None:

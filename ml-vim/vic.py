@@ -1,4 +1,3 @@
-import io
 import sys
 
 from imageprocessor import process_image
@@ -8,7 +7,7 @@ output_file = sys.argv[2]
 
 # read input image
 with open(input_file, 'rb') as fp:
-    buffer = io.BytesIO(fp.read())
+    buffer = fp.read()
 
 # process image
 img = process_image(buffer)
