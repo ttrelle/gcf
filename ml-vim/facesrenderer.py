@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw
 from basicrenderer import drawRect, processAnnotations
+from google.cloud.vision import types
 
 BBOX_COLOR = (255, 255, 255)
 MARKER_COLOR = (255, 0, 0)
@@ -25,15 +26,15 @@ FEATURES = [
     (False, ["LEFT_EAR_TRAGION", "CHIN_LEFT_GONION", "CHIN_GNATHION", "CHIN_RIGHT_GONION", "RIGHT_EAR_TRAGION"])
 ]
 
-def processFaces(name, faceAnnotations, raw = None):
-    return processAnnotations(name, faceAnnotations, processFace, raw)
+def processFaces(faceAnnotations, img):
+    return processAnnotations(faceAnnotations, processFace, img)
 
-def processFace(data, canvas, size):
+def processFace(faceAnnotations, canvas, size):
     # bounding boxes
-    drawRect(canvas, data["boundingPoly"]["vertices"])
-    drawRect(canvas, data["fdBoundingPoly"]["vertices"])
+    drawRect(canvas, faceAnnotations.bounding_poly.vertices)
+    drawRect(canvas, faceAnnotations.fd_bounding_poly.vertices)
 
-    landmarks = data["landmarks"]
+    landmarks = faceAnnotations.landmarks
     for l in landmarks:
         drawLandmark(canvas, l, False)
 
@@ -43,17 +44,17 @@ def processFace(data, canvas, size):
 
 def drawLandmark(draw, lm, text = True):
     # print(lm)
-    x = int(lm["position"]["x"])
-    y = int(lm["position"]["y"])
+    x = int(lm.position.x)
+    y = int(lm.position.y)
     draw.ellipse(xy=[(x-1,y-1),(x+2, y+1)], fill = MARKER_COLOR, width=LINE_WIDTH)
     if text:
-        draw.text(xy= (x+5,y+2), text = lm["type"], fill = BBOX_COLOR)
+        draw.text(xy= (x+5,y+2), text = str(lm.type), fill = BBOX_COLOR)
 
 def getLandmarkPoint(landmarks, id):
     for lm in landmarks:
-        if lm["type"] == id:
-            pos = lm["position"]
-            return (pos["x"], pos["y"])
+        if lm.type == types.image_annotator_pb2._FACEANNOTATION_LANDMARK_TYPE.values_by_name[id].number:
+            pos = lm.position
+            return (pos.x, pos.y)
 
 def drawFeature(canvas, feature, landmarks):
     closePoly, featureList = feature

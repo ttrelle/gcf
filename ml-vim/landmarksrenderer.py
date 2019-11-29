@@ -1,8 +1,8 @@
 from PIL import Image, ImageDraw
 from basicrenderer import drawRect, processAnnotations
 
-def processLandmarks(name, landmarkAnnotations, raw = None):
-    return processAnnotations(name, landmarkAnnotations, processLandmark, raw)
+def processLandmarks(landmarkAnnotations, img):
+    return processAnnotations(landmarkAnnotations, processLandmark, img)
 
 def processLandmark(data, canvas, size):
-    drawRect(canvas, data["boundingPoly"]["vertices"], data["description"])
+    drawRect(canvas, data.bounding_poly.vertices, data.description)
